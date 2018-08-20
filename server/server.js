@@ -1,6 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-const {ObjectId} = require('mongodb');
+const {ObjectID} = require('mongodb');
 
 var {mangoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
@@ -25,23 +25,21 @@ app.post('/todos', (req, res) => {
 app.get('/todos/:id', (req, res) => {
   var id = req.params.id;
 
-  if (!ObjectId.isValid(id)) {
-    res.status(404).send();
-    console.log('id is invalid');
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+    // console.log('id is invalid');
   }
 
-  Todo.find({
-    _id: id
-  }).then((todo) => {
+  Todo.findById(id).then((todo) => {
     if (!todo) {
-      res.status(404).send();
-      console.log(`object with id ${id}, not found`);
+      return res.status(404).send();
+      // console.log(`object with id ${id}, not found`);
     }
     res.status(200).send({todo});
-    console.log('Todo',todo);
+    // console.log('Todo',todo);
   }).catch((e) => {
-    res.status(400).send();
-    console.log('error accessing to the db')
+    return res.status(400).send();
+    // console.log('error accessing to the db')
   });
 });
 
