@@ -11,7 +11,7 @@ const todos = [{
   },{
     _id: new ObjectID(),
     text: "second todo"
-  }]
+  }];
 
 beforeEach((done) => {
   Todo.remove({}).then(() => {
@@ -101,6 +101,45 @@ describe('GET /todos/:id', () => {
   it('should return 404 for non-object id', (done) => {
     request(app)
       .get('/todos/5b78acfcec9a0e193b8a95e218')
+      .expect(404)
+      .end(done);
+  });
+
+});
+
+describe('DELETE /todos/:id', () => {
+  it('should remove a todo', (done) => {
+    // console.log(`/todos/${todos[0]._id.toHexString()}`);
+    var hexId = todos[1]._id.toHexString();
+
+    request(app)
+      .delete(`/todos/${hexId}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo._id).toBe(hexId);
+        // console.log('Hello:',res.body.Todo.text);
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err)
+        }
+        Todo.findById(hexId).then((todo) => {
+          expect(todo).toNotExist;
+          done();
+        }).catch ( (err) => done(err));
+      });
+  });
+
+  it('should return 404 if todo not found', (done) => {
+    request(app)
+      .delete('/todos/5b78acfcec9a0e193b8a95e2')
+      .expect(404)
+      .end(done);
+  });
+
+  it('should return 404 for non-object id', (done) => {
+    request(app)
+      .delete('/todos/5b78acfcec9a0e193b8a95e218')
       .expect(404)
       .end(done);
   });
